@@ -11,88 +11,99 @@ Example:
 
 @element paper-collapse
 @homepage https://github.com/miztroh/paper-collapse
+@demo demo.html
 -->
 <link rel="import" href="/bower_components/polymer/polymer.html">
-<link rel="import" href="/bower_components/core-collapse/core-collapse.html">
-<link rel="import" href="/bower_components/core-icon/core-icon.html">
-<link rel="import" href="/bower_components/core-icons/core-icons.html">
+<link rel="import" href="/bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/font-roboto/roboto.html">
-<polymer-element name="paper-collapse">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout.html">
+<dom-module id="paper-collapse">
+  <style>
+    :host {
+      display: block;
+      font-family: RobotoDraft;
+      border: 1px solid transparent;
+      margin-top: -1px;
+    }
+
+    :host([opened]) {
+      border-color: #EBEBEB;
+    }
+
+    #toolbar {
+      padding: 15px;
+      @apply(--layout-horizontal);
+    }
+
+    #toolbar:hover {
+      cursor: pointer;
+    }
+
+    #labelIcon {
+      color: #757575;
+      margin-right: 30px;
+    }
+
+    #label {
+      padding-right: 30px;
+      line-height: 24px;
+      @apply(--layout-flex);
+    }
+
+    #toggleIcon {
+      color: #B4B4B4;
+    }
+
+    #collapse {
+      padding: 0 15px 15px 15px;
+    }
+  </style>
+
   <template>
-  	<style>
-  		:host {
-  			display: block;
-  			font-family: RobotoDraft;
-  			border: 1px solid transparent;
-  			margin-top: -1px;
-  		}
-
-			:host([opened]) {
-				border-color: #EBEBEB;
-			}
-
-			#toolbar {
-				padding: 15px;
-			}
-
-			#toolbar:hover {
-				cursor: pointer;
-			}
-
-			#labelIcon {
-				color: #757575;
-				margin-right: 30px;
-			}
-
-			#label {
-				padding-right: 30px;
-				line-height: 24px;
-			}
-
-			#toggleIcon {
-				color: #B4B4B4;
-			}
-
-			#collapse {
-				padding: 0 15px 15px 15px;
-			}
-  	</style>
 		<div id="container">
-			<div layout horizontal id="toolbar">
-				<template if="{{labelIcon}}"><core-icon icon="{{labelIcon}}" id="labelIcon"></core-icon></template>
-				<div flex id="label">{{label}}</div>
-				<core-icon icon="{{opened ? openedIcon : closedIcon}}" id="toggleIcon"></core-icon>
+			<div id="toolbar">
+				<template is="dom-if" if="{{labelIcon}}"><iron-icon icon="{{labelIcon}}" id="labelIcon"></iron-icon></template>
+				<div id="label">{{label}}</div>
+				<iron-icon icon="{{_toggleIcon}}" id="toggleIcon"></iron-icon>
 			</div>
-			<core-collapse id="collapse" opened?="{{opened}}">
+			<iron-collapse id="collapse" opened$="{{opened}}">
 				<content></content>
-			</core-collapse>
+			</iron-collapse>
 		</div>
   </template>
+
 	<script>
 		Polymer(
 			{
-				publish: {
+        is: 'paper-collapse',
+
+				properties: {
 					/**
 	        * The toggle icon to display when the `paper-collapse` is closed.
 	        *
 	        * @property closedIcon
 	        * @type String
 	        */
-					closedIcon: 'expand-more',
+					closedIcon: {
+            type: String,
+            value: 'expand-more'
+          },
 					/**
 	        * The text to display in the toolbar area of the `paper-collapse`.
 	        *
 	        * @property label
 	        * @type String
 	        */
-					label: '',
+					label: String,
 					/**
 	        * The icon to display to the left of the label.  Optional.
 	        *
 	        * @property labelIcon
 	        * @type String
 	        */
-					labelIcon: '',
+					labelIcon: String,
 					/**
 	        * Whether or not the `paper-collapse` is opened and its content visible.
 	        *
@@ -100,8 +111,9 @@ Example:
 	        * @type Boolean
 	        */
 					opened: {
+            type: Boolean,
 						value: false,
-						reflect: true
+						reflectToAttribute: true,
 					},
 					/**
 	        * The toggle icon to display when the `paper-collapse` is opened.
@@ -109,16 +121,27 @@ Example:
 	        * @property openedIcon
 	        * @type String
 	        */
-					openedIcon: 'expand-less'
+					openedIcon: {
+            type: String,
+            value: 'expand-less'
+          },
+          _toggleIcon: {
+            computed: '_getToggleIcon(opened, openedIcon, closedIcon)'
+          }
 				},
 				ready: function () {
-					this.$.collapse.addEventListener(
-						'tap',
+          this.addEventListener(
+						'click',
 						function (event) {
 							event.stopPropagation();
+
+              this.opened = !this.opened;
 						}
 					);
-				}
+				},
+        _getToggleIcon: function(opened, openedIcon, closedIcon) {
+          return opened ? openedIcon : closedIcon;
+        }
 			}
 		);
 	</script>
